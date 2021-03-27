@@ -15,8 +15,6 @@ with open('coin.json', 'r') as f:
 
 @client.event
 async def on_ready():
-    channel = client.get_channel(704516359828275350)
-    await channel.connect()
     await bt()
 
 @client.event
