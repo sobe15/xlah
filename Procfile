@@ -1,1 +1,1 @@
-woker: python bot.py
+woker: python 티모.py
