@@ -25,7 +25,7 @@ async def on_message(message):
 
     if message.content.startswith("티모야"):
         if str(message.author.id) not in coin:
-            coin[str(message.author.id)] = [500000, 0]
+            coin[str(message.author.id)] = [500000, 0, 0]
         if message.content[4:] == "":
             async with message.channel.typing():
                 await asyncio.sleep(0.07)
@@ -37,7 +37,7 @@ async def on_message(message):
         if a == "도움":
             embed = discord.Embed(title="정찰목록", description="-티모", color=0xFFE400)
             embed.add_field(name="티모야 배워", value="사용법:```티모야 배워 (단어)/(뜻)```\n단어에는 띄어쓰기를 사용할수 없어요.", inline=True)
-            embed.add_field(name="티모야 코인", value="사용법:```티모야 코인 (매수/매도) (수량)```\n`티모야 코인`으로 현재가를 알아보세요!", inline=True)
+            embed.add_field(name="티모야 코인", value="사용법:```티모야 종목```\n종목들을 한번에 확인하세요!", inline=True)
             await message.channel.send(embed=embed)
 
         elif a == "배워":
@@ -67,7 +67,13 @@ async def on_message(message):
                     await message.channel.send(i)
                     del data[i]
 
-        elif a == "코인":
+        elif a == "종목":
+            embed = discord.Embed(title="종목", description="자산 : " + str(coin[str(message.author.id)][0]), color=0xFFE400)
+            embed.add_field(name="버섯코인", value=str(coin["coin"]), inline=True)
+            embed.add_field(name="티모전자", value=str(coin["coin2"]), inline=True)
+            await message.channel.send(embed=embed)
+
+        elif a == "버섯코인":
             try:
                 if vote[1] == "매수":
                     if coin[str(message.author.id)][0] >= coin["coin"] * int(vote[2]):
@@ -89,6 +95,28 @@ async def on_message(message):
             embed.add_field(name="매도가능", value=str(coin[str(message.author.id)][1]), inline=True)
             await message.channel.send(embed=embed)
 
+        elif a == "티모전자":
+            try:
+                if vote[1] == "매수":
+                    if coin[str(message.author.id)][0] >= coin["coin2"] * int(vote[2]):
+                        coin[str(message.author.id)][0] -= coin["coin2"] * int(vote[2])
+                        coin[str(message.author.id)][2] += int(vote[2])
+
+                
+                if vote[1] == "매도":
+                    if coin[str(message.author.id)][2] >= int(vote[2]):
+                        coin[str(message.author.id)][0] += coin["coin2"] * int(vote[2])
+                        coin[str(message.author.id)][2] -= int(vote[2])
+
+            except IndexError:
+                pass
+
+            embed = discord.Embed(title="티모전자", description="현재가 : " + str(coin["coin2"]), color=0xFFE400)
+            embed.add_field(name="총평가", value=str(coin["coin2"] * coin[str(message.author.id)][1]), inline=True)
+            embed.add_field(name="자산", value=str(coin[str(message.author.id)][0]), inline=True)
+            embed.add_field(name="매도가능", value=str(coin[str(message.author.id)][2]), inline=True)
+            await message.channel.send(embed=embed)
+
         else:
             if a in data:
                 await message.channel.send(data[a][random.randrange(0, len(data[a]))])
@@ -108,11 +136,23 @@ async def bt():
 
         if random.choice([True, False]):
             coin["coin"] += 1000
-            await client.change_presence(status=discord.Status.online, activity=discord.Game("버섯코인 : " + str(coin["coin"]) + "↑"))
+            if random.choice([True, False]):
+                coin["coin2"] += 500
+                await client.change_presence(status=discord.Status.online, activity=discord.Game("버섯코인 : " + str(coin["coin"]) + "↑\n티모전자 : " + str(coin["coin2"]) + "↑"))
+            else:
+                if coin["coin2"] != 0:
+                    coin["coin2"] += 500
+                    await client.change_presence(status=discord.Status.online, activity=discord.Game("버섯코인 : " + str(coin["coin"]) + "↑\n티모전자 : " + str(coin["coin2"]) + "↓"))
         else:
             if coin["coin"] != 0:
                 coin["coin"] -= 1000
-                await client.change_presence(status=discord.Status.online, activity=discord.Game("버섯코인 : " + str(coin["coin"]) + "↓"))
+            if random.choice([True, False]):
+                coin["coin2"] += 500
+                await client.change_presence(status=discord.Status.online, activity=discord.Game("버섯코인 : " + str(coin["coin"]) + "↓\n티모전자 : " + str(coin["coin2"]) + "↑"))
+            else:
+                if coin["coin2"] != 0:
+                    coin["coin2"] += 500
+                    await client.change_presence(status=discord.Status.online, activity=discord.Game("버섯코인 : " + str(coin["coin"]) + "↓\n티모전자 : " + str(coin["coin2"]) + "↓"))
     
         await asyncio.sleep(random.randrange(4, 6))
 
